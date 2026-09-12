@@ -19,7 +19,7 @@ laid the methods side by side; this is the arithmetic that sits under them,
 written down so that its assumptions can be seen and its sensitivities
 measured.
 
-Four questions, four models.
+Five questions, five models, and one physics-informed neural network.
 
 ---
 
@@ -34,6 +34,7 @@ Four questions, four models.
 | 5 | A temperature series taken with a laser that runs out of photons at the top of the range returns κ **2.2× too high** and Γ **100× too low**, with a reduced χ² of 120 that says so — if anyone looks. | §3 |
 | 6 | Of the polarization leaving a polarizer, **23%** reaches the first excitation in a representative clinical chain; the lung itself costs the most (T1 ≈ 20 s from alveolar oxygen), transport time the next, and a leaking bag valve everything. | §4 |
 | 7 | The SABRE-SHEATH matching field for a single bound 15N is 0.20 µT, 0.1 µT below the first-order level-crossing formula; a second bound substrate moves it to **0.38 µT**. The field an experiment finds is a statement about the structure of the complex. | §5 |
+| 8 | A physics-informed network with an *unknown function* P_Rb(T) in the rate equation recovers κ to **0.88×** and Γ to 0.90× from the laser-starved series that a constant-P_Rb least-squares fit gets 2.2× and 0.01× wrong. Where the model is right, least squares is better (1.00 vs 0.97) — the network is a repair, not an upgrade. | §6 |
 
 ---
 
@@ -250,11 +251,66 @@ parahydrogen hyperpolarization in
 the label is worth having only if there is a field at which order reaches
 it, and the model says where that field is and how forgiving it is.
 
+
+---
+
+## 6. Where a physics-informed network earns its place
+
+![pinn](figures/06_pinn.png)
+
+The rate models above are cheap to solve exactly, so a neural network is not
+needed to solve them, and the left panel says so: a network trained only on
+the residual of the light-attenuation equation reproduces the Runge–Kutta
+solution of §1 to 10⁻⁴ in the laser flux and 10⁻⁵ in the rubidium
+polarization — in 2 seconds against 6 milliseconds. That is the honest
+scoreboard for a forward PINN on a one-dimensional ODE.
+
+The inverse problem is where it changes something. The network takes
+(t, T) → P, with P(0) = 0 built in, and the rate equation
+
+dP/dt = κ n_Rb(T) · (P_Rb − P) − Γ P
+
+as a residual with κ and Γ trainable. The rubidium polarization is either
+one trainable constant — exactly the assumption of the least-squares fit in
+§3 — or a small network P_Rb(T) that the physics is free to fill in.
+
+| design | method | κ / true | Γ / true |
+|---|---|---|---|
+| B: model is right | least squares, constant P_Rb | **1.00** [1.00, 1.02] | 0.95 [0.88, 1.25] |
+| B | PINN, constant P_Rb | 0.88 [0.41, 0.91] | 0.53 [0.20, 1.66] |
+| B | PINN, P_Rb(T) learned | 0.97 [0.91, 1.04] | 1.19 [0.84, 1.69] |
+| D: 50 W laser runs out | least squares, constant P_Rb | 2.20 [2.00, 2.25] | 0.01 |
+| D | PINN, constant P_Rb | 0.02 | 0.02 |
+| D | PINN, P_Rb(T) learned | **0.88** [0.81, 0.93] | **0.90** [0.73, 1.04] |
+
+Five noisy replicates each; brackets are the range.
+
+Three things follow, and the first is against the network. **When the model
+is right, least squares wins.** It recovers κ to 1% and the constant-P_Rb
+PINN to 12%, with one replicate at 0.41: a soft physics residual is a worse
+curve-fitter than an exact one, and nothing about "physics-informed" changes
+that.
+
+**When the model is wrong in the way real experiments are wrong, the
+network with a function slot is the only one of the three that returns a
+usable answer.** The laser-starved series of §3 makes the plateau fall with
+temperature; a constant P_Rb can only explain that by inventing relaxation
+(Γ → 0.01, κ → 2.2). The PINN with the same constant does worse still — it
+fits the data with the network and lets the physics loss go where it likes.
+The PINN with P_Rb(T) learned gets κ to 0.88 and Γ to 0.90, because the
+rate information lives in the time constant γ(T) = κ n_Rb(T) + Γ, which the
+residual enforces at every collocation point, and not in the plateau, which
+P_Rb(T) is free to absorb.
+
+**The repair costs precision.** 0.88 is not 1.00, and the range is wider.
+A network with an unknown function in it is the tool for a model you know
+to be incomplete, not a replacement for a fit you trust.
+
 ---
 
 ## Verification
 
-Twelve checks, all passing:
+Fourteen checks, all passing (two need PyTorch and are skipped without it):
 
 - the rubidium density is in the known range (≈10¹³ cm⁻³ at 100 °C, 10¹⁴
   at 150 °C) and monotonic; 1 W at 795 nm is 4.0×10¹⁸ photons/s
@@ -272,6 +328,8 @@ Twelve checks, all passing:
 - SABRE transfer is zero at zero field and zero with symmetric couplings;
   the closed-form residence average matches a 20 000-point time integral;
   the 15N polarization never exceeds 1 in the four-spin system
+- the forward PINN matches the Runge–Kutta cell profile to 10⁻³; the
+  inverse PINN's hard constraint P(0) = 0 holds exactly
 
 ---
 
@@ -292,21 +350,31 @@ Twelve checks, all passing:
   the location and shape of the resonance, not an absolute polarization.
 - **No image.** The flip-angle panel is a signal-per-excitation curve, not a
   reconstruction; the k-space consequence is stated, not simulated.
+- **Five replicates per PINN configuration**, not two hundred: each fit is
+  a few minutes of training. The ranges are ranges, not confidence
+  intervals.
 
 ---
 
 ## Source code
 
-**The source code for this project is not public.** This page documents the
-models, the assumptions, the calculations and the conclusions; the
-implementation is held in a private repository and is available under NDA.
+The core of this repository is public, in `src/`:
 
-What is described here: the four-rate SEOP model with laser attenuation along
-the cell, the polarization–production frontier, the Monte Carlo over the
-rate-constant ranges with rank-correlation sensitivity, the Fisher-information
-and profile-likelihood identifiability analysis of build-up curves, the
-staged T1 delivery budget with flip-angle schedules, and the closed-form
-residence-averaged spin dynamics for SABRE-SHEATH.
+| file | what it is |
+|---|---|
+| `seop.py` | the four-rate SEOP model: rubidium density, D1 cross-section, spin destruction, spin exchange, laser attenuation along the cell, flow-through polarization |
+| `exp2_identifiability.py` | build-up model, least-squares fit, Fisher information and profile likelihood, the four designs |
+| `exp4_sabre.py` | n-spin SABRE-SHEATH dynamics with the closed-form residence average |
+| `exp5_pinn.py` | the forward cell PINN and the inverse build-up PINN with the learned P_Rb(T) (PyTorch) |
+| `tests/test_all.py` | the fourteen checks above |
+
+`python3 tests/test_all.py` runs in under a minute; `exp5_pinn.py` needs
+PyTorch and a few minutes of CPU.
+
+**Not public:** the polarization–production frontier and Monte Carlo
+sweeps (exp1), the staged delivery budget (exp3) and the figure scripts —
+these carry operating-point choices that belong to ongoing work and are
+available under NDA. Every number they produce is in `results/`.
 
 ---
 

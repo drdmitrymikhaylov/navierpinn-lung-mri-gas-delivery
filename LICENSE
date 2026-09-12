@@ -1,2 +1,6 @@
-Documentation, figures and result files: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
-Source code (private repository): all rights reserved; available under NDA.
+Documentation, figures and result files: CC BY 4.0
+(https://creativecommons.org/licenses/by/4.0/).
+
+Source code in src/ and tests/: MIT License, Copyright (c) 2026 Dmitry Mikhaylov.
+The operating-point sweeps and delivery-budget scripts are not included and
+are available under NDA.
