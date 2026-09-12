@@ -364,6 +364,7 @@ The core of this repository is public, in `src/`:
 |---|---|
 | `seop.py` | the four-rate SEOP model: rubidium density, D1 cross-section, spin destruction, spin exchange, laser attenuation along the cell, flow-through polarization |
 | `exp2_identifiability.py` | build-up model, least-squares fit, Fisher information and profile likelihood, the four designs |
+| `exp3_budget.py` | the staged T1 delivery chain and the flip-angle schedules |
 | `exp4_sabre.py` | n-spin SABRE-SHEATH dynamics with the closed-form residence average |
 | `exp5_pinn.py` | the forward cell PINN and the inverse build-up PINN with the learned P_Rb(T) (PyTorch) |
 | `tests/test_all.py` | the fourteen checks above |
@@ -372,9 +373,9 @@ The core of this repository is public, in `src/`:
 PyTorch and a few minutes of CPU.
 
 **Not public:** the polarization–production frontier and Monte Carlo
-sweeps (exp1), the staged delivery budget (exp3) and the figure scripts —
-these carry operating-point choices that belong to ongoing work and are
-available under NDA. Every number they produce is in `results/`.
+sweeps (exp1) and the figure scripts — these carry operating-point choices
+that belong to ongoing work and are available under NDA. Every number they
+produce is in `results/`.
 
 ---
 
