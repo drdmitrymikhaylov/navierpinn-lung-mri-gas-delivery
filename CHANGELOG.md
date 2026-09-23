@@ -9,7 +9,7 @@
   vs 0.98) is 0.10–0.45 on all 20 PINN runs, right model or wrong, and the
   physics residual is *lower* on the wrong model — the repair removes the
   diagnostic. New subsection "Reading the five replicates one by one".
-- Section 3: per-minute cost of each stage (cryogenic 0.7 %/min, bag 4.0,
+- Section 3: per-minute cost of each stage (cryogenic 0.7 %/min, bag 3.9,
   transport 4.1 — same T1 to 4 % — lung 4.9 %/s); 7 s of breath-hold = 8 min
   of transport. Flip-angle correction: the variable T1-aware schedule's mean
   signal is 6 % *higher* than constant 15° (0.097 vs 0.091), not lower; it

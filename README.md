@@ -177,7 +177,7 @@ in a lung whose alveolar oxygen gives the gas a T1 of about 20 s.
 excitation.** The ranking of the losses is not the ranking of the effort
 usually spent on them. Read per unit time rather than per stage, the chain
 is simpler than the table makes it look: the cryogenic step costs 0.7 % a
-minute, the bag 4.0 % a minute and the transport 4.1 % a minute (their T1s
+minute, the bag 3.9 % a minute and the transport 4.1 % a minute (their T1s
 are 25 and 24 min, the same to within 4 %), and the lung 4.9 % a *second*.
 Transport is the largest loss before the lung not because a transport
 line is worse than a bag but because it is five times longer; and the

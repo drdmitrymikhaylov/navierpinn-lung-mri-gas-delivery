@@ -62,7 +62,7 @@ def test_delivery_chain_and_per_minute_costs():
     # per-minute costs quoted in the text (added 2026-09-23)
     pm = {r["stage"]: r for r in c["chain_per_minute"]}
     assert round(100 * pm["cryogenic accumulation"]["loss_per_minute"], 1) == 0.7
-    assert round(100 * pm["bag: walls + residual O2"]["loss_per_minute"], 1) == 4.0
+    assert round(100 * pm["bag: walls + residual O2"]["loss_per_minute"], 1) == 3.9
     assert round(100 * pm["transport to scanner"]["loss_per_minute"], 1) == 4.1
     assert round(100 * pm["inhalation and breath-hold"]["loss_per_second"], 1) == 4.9
     t_bag, t_tr = pm["bag: walls + residual O2"]["T1_s"], pm["transport to scanner"]["T1_s"]
