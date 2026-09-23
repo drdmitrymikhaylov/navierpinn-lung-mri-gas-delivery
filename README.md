@@ -34,7 +34,7 @@ Five questions, five models, and one physics-informed neural network.
 | 5 | A temperature series taken with a laser that runs out of photons at the top of the range returns κ **2.2× too high** and Γ **100× too low**, with a reduced χ² of 120 that says so, if anyone looks. | 2 |
 | 6 | Of the polarization leaving a polarizer, **23%** reaches the first excitation in a representative clinical chain. The lung itself costs the most (T1 ≈ 20 s from alveolar oxygen), transport time the next, and a leaking bag valve everything. | 3 |
 | 7 | The SABRE-SHEATH matching field for a single bound 15N is 0.20 µT, 0.1 µT below the first-order level-crossing formula. A second bound substrate moves it to **0.38 µT**. The field an experiment finds is a statement about the structure of the complex. | 4 |
-| 8 | A physics-informed network with an *unknown function* P_Rb(T) in the rate equation recovers κ to **0.88×** and Γ to 0.90× from the laser-starved series that a constant-P_Rb least-squares fit gets 2.2× and 0.01× wrong. Where the model is right, least squares is better (1.00 vs 0.97). The network is a repair, not an upgrade. | 5 |
+| 8 | A physics-informed network with an *unknown function* P_Rb(T) in the rate equation recovers κ to **0.88×** and Γ to 0.90× from the laser-starved series that a constant-P_Rb least-squares fit gets 2.2× and 0.01× wrong. Where the model is right, least squares is better (1.00 vs 0.97). The network is a repair, not an upgrade, and the 0.88 is a bias (κ low in **5 of 5** replicates), not scatter. The repair also removes the warning: least squares flags the wrong model with χ²/dof 123, every PINN run reports 0.1–0.45 whether the model is right or wrong. | 5 |
 
 ---
 
@@ -175,7 +175,15 @@ in a lung whose alveolar oxygen gives the gas a T1 of about 20 s.
 
 **Less than a quarter of what leaves the polarizer is there for the first
 excitation.** The ranking of the losses is not the ranking of the effort
-usually spent on them. What a single change buys:
+usually spent on them. Read per unit time rather than per stage, the chain
+is simpler than the table makes it look: the cryogenic step costs 0.7 % a
+minute, the bag 4.0 % a minute and the transport 4.1 % a minute (their T1s
+are 25 and 24 min, the same to within 4 %), and the lung 4.9 % a *second*.
+Transport is the largest loss before the lung not because a transport
+line is worse than a bag but because it is five times longer; and the
+seven seconds of breath-hold that the first row of the next table saves
+are worth the same as the eight minutes of transport that the second row
+saves (×1.42 against ×1.40). What a single change buys:
 
 | change | delivered | vs baseline |
 |---|---|---|
@@ -188,7 +196,7 @@ usually spent on them. What a single change buys:
 | transport in a 1 mT carrier | 24% | ×1.01 |
 | transport 30 min | 10% | ×0.43 |
 | 5 µT/cm gradient during transport | 17% | ×0.71 |
-| bag oxygen 2% (a leaking valve) | 0.1% | ×0.005 |
+| bag oxygen 2% (a leaking valve) | 0.1% | ×0.004 |
 
 The middle panel is the oxygen curve: flat below a few hundred ppm, then a
 cliff. 0.388 s⁻¹ per amagat of O2 turns 1% oxygen into a 4-minute T1 and 2%
@@ -202,8 +210,13 @@ The right panel is the imaging end. Sixty-four excitations in a 20 s lung.
 A constant 15° flip spends the magnetization on the first lines and leaves
 7% of the first signal for the last, which is an apodization of k-space
 that blurs the image. The variable schedule tan αₙ = E sin αₙ₊₁, run
-backwards from 90°, returns exactly equal signal from every line at a
-slightly lower mean. Ignoring T1 in that schedule costs a 38% droop across
+backwards from 90°, returns exactly equal signal from every line, and
+its mean signal per excitation is 6 % *higher* than the constant 15°
+schedule's (0.097 against 0.091), not lower as an earlier version of this
+sentence said. What it gives up is the first line, 0.37× as strong, and
+with it the summed signal energy, 0.60 against 0.82: the constant flip
+angle spends the magnetization early and the sum of squares rewards that,
+the image does not. Ignoring T1 in that schedule costs a 38% droop across
 the acquisition. That is small next to the losses upstream, which is the
 point of putting the two on one page.
 
@@ -305,6 +318,49 @@ P_Rb(T) is free to absorb.
 A network with an unknown function in it is the tool for a model you know
 to be incomplete. It is not a replacement for a fit you trust.
 
+### Reading the five replicates one by one
+
+The table gives medians and ranges. The replicates themselves say two
+things the medians do not (`src/replicate_checks.py`,
+`results/replicate_checks.json`).
+
+| design | method | κ / true, five replicates | below 1 | Γ / true | below 1 | data χ²/dof |
+|---|---|---|---|---|---|---|
+| B | least squares | 1.00 1.00 1.00 1.02 1.00 | 2/5 | 1.25 0.88 0.95 1.07 0.93 | 3/5 | 0.98 (median of 200) |
+| B | PINN, constant P_Rb | 0.41 0.88 0.88 0.90 0.91 | 5/5 | 0.20 0.53 0.48 1.66 0.72 | 4/5 | 0.10–0.38 |
+| B | PINN, P_Rb(T) | 1.03 1.04 0.97 0.94 0.91 | 3/5 | 1.69 1.07 1.44 1.19 0.84 | 1/5 | 0.15–0.40 |
+| D | least squares | 2.25 2.20 2.21 2.18 2.00 | 0/5 | 0.01 ×5 | 5/5 | **123** |
+| D | PINN, constant P_Rb | 0.02 0.03 0.02 0.00 0.02 | 5/5 | 0.02 ×5 | 5/5 | 0.14–0.45 |
+| D | PINN, P_Rb(T) | 0.93 0.87 0.90 0.88 0.81 | **5/5** | 0.89 0.94 1.04 0.73 0.90 | 4/5 | 0.15–0.33 |
+
+**The 0.88 is a bias, not scatter.** On the laser-starved series every one
+of the five P_Rb(T) fits returns κ below the truth (0.81 to 0.93, mean
+0.88), and four of five return Γ below it. On the well-specified series the
+same network straddles the truth in κ (three below, two above, 0.91 to
+1.04) and sits *above* it in Γ (four of five, median 1.19). So the 12 %
+shortfall belongs to the misspecified series and not to the method, and
+the direction is fixed: both rates come out low, so the fitted time
+constant γ(T) = κ n_Rb(T) + Γ is short of the truth at every temperature
+and the learned P_Rb(T) takes up the difference in the plateau. A reader
+who wanted to correct for it could, because the sign is the same in five
+of five.
+
+**The repair removes the warning light.** The number that exposed design D
+in section 2 was the reduced χ² of the least-squares fit: 0.98 where the
+model is right, 123 where it is wrong. The physics-informed fits have no
+such number. Their data term, computed with the same noise model, is
+0.10–0.45 on every run of every configuration, the misspecified series
+included, and below 1 in all twenty, which means the network is fitting
+the noise, not just the curve. The physics residual does not help either:
+0.0008–0.0013 for P_Rb(T) on the right model, 0.0004–0.0007 on the wrong
+one. It is *lower* on the wrong model. The only residual that separates
+anything is the constant-P_Rb PINN on design D, at 0.0016–0.0044, three to
+six times the function variant, and that separates two network
+configurations from each other, not a right model from a wrong one. The
+least-squares fit gives a wrong κ and says so; the network with a function
+slot gives a nearly right κ and has no way of saying whether the model it
+repaired needed repairing. Both facts should be on the same page.
+
 ---
 
 ## Caveats
@@ -362,7 +418,9 @@ The core of this repository is public, in `src/`:
 | `exp3_budget.py` | the staged T1 delivery chain and the flip-angle schedules |
 | `exp4_sabre.py` | n-spin SABRE-SHEATH dynamics with the closed-form residence average |
 | `exp5_pinn.py` | the forward cell PINN and the inverse build-up PINN with the learned P_Rb(T) (PyTorch) |
+| `replicate_checks.py` | the five PINN replicates read one by one, per-minute cost of each delivery stage, flip-angle schedule comparison — from `results/` alone, no PyTorch |
 | `tests/test_all.py` | the fourteen checks below |
+| `tests/test_readme_numbers.py` | pins the tables on this page to `results/*.json` |
 
 `python3 tests/test_all.py` runs in under a minute; `exp5_pinn.py` needs
 PyTorch and a few minutes of CPU.
