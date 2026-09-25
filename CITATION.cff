@@ -1,11 +1,23 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite it as below."
 type: software
-title: "navierpinn-lung-mri-gas-delivery"
+title: "NavierPINN: Polarization Losses in Hyperpolarized Xenon Lung MRI"
+abstract: "Hyperpolarized xenon: where the polarization is lost"
 authors:
   - family-names: Mikhaylov
     given-names: Dmitry
     orcid: "https://orcid.org/0009-0009-2108-6820"
+    affiliation: "Abu Dhabi Maritime Academy, AD Ports Group"
 repository-code: "https://github.com/drdmitrymikhaylov/navierpinn-lung-mri-gas-delivery"
+url: "https://github.com/drdmitrymikhaylov/navierpinn-lung-mri-gas-delivery"
 license: "CC-BY-4.0"
-year: 2026
+keywords:
+  - "hyperpolarization"
+  - "identifiability"
+  - "nmr"
+  - "parahydrogen"
+  - "physics modeling"
+  - "sabre"
+  - "seop"
+  - "xenon 129"
+date-released: "2026-09-09"
