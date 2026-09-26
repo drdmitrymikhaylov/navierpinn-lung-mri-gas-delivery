@@ -23,6 +23,10 @@ Five questions, five models, and one physics-informed neural network.
 
 ---
 
+## Background
+
+Hyperpolarization is where my career in physics began. My research on NMR hyperpolarization of gases and on parahydrogen chemistry was published in *Chemistry – A European Journal* (2017) and *Bioconjugate Chemistry* (2016), with groups working on molecular and lung imaging. Since then the question has come back through research and industrial partners again and again: how much of the signal survives the journey from the polarizer to the patient? This repository answers it stage by stage, with the physics of every loss written down.
+
 ## Summary
 
 | # | Finding | Where |
