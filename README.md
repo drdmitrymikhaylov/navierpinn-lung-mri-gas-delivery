@@ -33,10 +33,10 @@ Hyperpolarization is where my career in physics began. My research on NMR hyperp
 |---|---------|-------|
 | 1 | The right cell temperature is a property of the laser, not of xenon. The optimum moves from 115 °C at 25 W to 145 °C at 200 W, and past it the back of the cell is dark. | 1 |
 | 2 | Polarization and production are a frontier, not a setting. At 200 W the same cell delivers 95% polarized xenon at 5 mL/min or 46% at 116 mL/min. Dilute xenon at the same total pressure wins at every point of it. | 1 |
-| 3 | With the rate constants uncertain by their published ranges, the predicted polarization at the nominal optimum is 0.52 with a 90% interval of **0.34 to 0.67**. The largest single source of that spread is not a physical constant. It is the rubidium density in the cell relative to the vapour-pressure formula. | 1 |
+| 3 | With the rate constants uncertain by their published ranges, the predicted polarization at the nominal optimum is 0.52 with a 90% interval of **0.34 to 0.67**. Ranked by correlation the largest single source is not a physical constant but the rubidium density in the cell relative to the vapour-pressure formula; ranked by what measuring it would buy, the Rb–Xe spin-destruction rate is its equal (40 % of the variance each; 29 % and 24 % of the width, from opposite ends), four constants carry 92 % of the width, and the other five nothing. | 1 |
 | 4 | A build-up curve at one temperature cannot measure the in-cell relaxation rate at all, and no series of build-up curves can separate the spin-exchange coefficient from the rubidium density. The two enter only as a product, so a "measured" κ inherits the full uncertainty of n_Rb. | 2 |
 | 5 | A temperature series taken with a laser that runs out of photons at the top of the range returns κ **2.2× too high** and Γ **100× too low**, with a reduced χ² of 120 that says so, if anyone looks. | 2 |
-| 6 | Of the polarization leaving a polarizer, **23%** reaches the first excitation in a representative clinical chain. The lung itself costs the most (T1 ≈ 20 s from alveolar oxygen), transport time the next, and a leaking bag valve everything. | 3 |
+| 6 | Of the polarization leaving a polarizer, **23%** reaches the first excitation in a representative clinical chain. The lung itself costs the most (T1 ≈ 20 s from alveolar oxygen), transport time the next, and a leaking bag valve everything. Every upstream repair made at once delivers 64 %, not the 82 % the one-at-a-time ratios multiply to; the lung alone then caps the chain at 67 % for an 8 s breath-hold. | 3 |
 | 7 | The SABRE-SHEATH matching field for a single bound 15N is 0.20 µT, 0.1 µT below the first-order level-crossing formula. A second bound substrate moves it to **0.38 µT**. The field an experiment finds is a statement about the structure of the complex. | 4 |
 | 8 | A physics-informed network with an *unknown function* P_Rb(T) in the rate equation recovers κ to **0.88×** and Γ to 0.90× from the laser-starved series that a constant-P_Rb least-squares fit gets 2.2× and 0.01× wrong. Where the model is right, least squares is better (1.00 vs 0.97). The network is a repair, not an upgrade, and the 0.88 is a bias (κ low in **5 of 5** replicates), not scatter. The repair also removes the warning: least squares flags the wrong model with χ²/dof 123, every PINN run reports 0.1–0.45 whether the model is right or wrong. | 5 |
 
@@ -105,6 +105,68 @@ Improving those constants would not improve the prediction. The optimum
 *temperature* is more robust than the polarization at it, median 125 °C,
 90% interval 115–135 °C. That is the usual pattern: the location of an
 optimum survives uncertainty better than its height.
+
+### Which measurement would buy the most
+
+A correlation ranks the constants by how much of the spread they *track*.
+The question the scope note asks is different: which measurement would
+make the prediction surer. The same 400 draws recomputed with each constant
+in turn held at its nominal value, the other eight as drawn — the interval a
+measurement of that one constant would leave — and, the other way round,
+with only that constant varying (`results/uncertainty_fixing.json`; the
+script sits with the Monte Carlo sweep, which is not public):
+
+| constant held at nominal | ρ (as stored) | 90 % interval left | width removed | variance removed | width when it alone varies |
+|---|---|---|---|---|---|
+| Rb–Xe spin destruction | -0.38 | 0.35–0.59 | 29 % | 40 % | 39 % |
+| rubidium density factor | +0.54 | 0.41–0.65 | 24 % | 40 % | 48 % |
+| van der Waals spin exchange κ | +0.43 | 0.35–0.64 | 11 % | 17 % | 37 % |
+| binary spin exchange κ | +0.47 | 0.35–0.65 | 8 % | 20 % | 46 % |
+| Rb–He spin destruction | -0.04 | 0.34–0.67 | 1 % | 0 % | 1 % |
+| Rb–N2 spin destruction | -0.04 | 0.34–0.67 | 0 % | 0 % | 0 % |
+| D1 pressure broadening | +0.02 | 0.34–0.67 | 0 % | 0 % | 1 % |
+| Rb–Rb spin destruction | +0.07 | 0.34–0.67 | 0 % | 0 % | 0 % |
+| in-cell xenon relaxation | -0.02 | 0.34–0.67 | -1 % | 0 % | 8 % |
+
+The correlation ranking is right about the top four and wrong about the
+order. Holding the rubidium-density factor removes 24 % of the width and
+cuts off the *low* end of the interval (0.41–0.66); holding the Rb–Xe
+spin-destruction rate, fourth by correlation, removes **29 %** of the width
+and cuts off the *high* end (0.35–0.59); by variance the two are equal at
+40 % each. So the largest single source of the spread is a pair, one
+physical constant and one cell property, and which of them to measure
+depends on which end of the interval matters. The other five constants
+remove nothing (≤ 1 %), which turns "would not improve the prediction"
+into a number. The interval is also lopsided: 67 % of the draws fall below
+the nominal 0.52 (median 0.47), because the density factor's range runs
+0.5–1.6 and a cell above nominal density is already laser-starved at 50 W,
+so the high half of that range buys little and the low half costs much.
+
+Several at once, and the measurement section 2 says is actually possible:
+
+| known | 90 % interval left | width removed |
+|---|---|---|
+| density factor and binary κ | 0.42–0.62 | 40 % |
+| … and van der Waals κ | 0.44–0.57 | 61 % |
+| … and Rb–Xe spin destruction | 0.50–0.53 | 92 % |
+| every constant except the density factor | 0.37–0.53 | 52 % |
+| the product κ·f known to ±10 % (what a build-up series measures; 65 of 400 draws) | 0.38–0.60 | 32 % |
+| the density factor alone known to ±10 % (64 draws) | 0.39–0.63 | 29 % |
+
+Four constants carry 92 % of the width. A build-up temperature series does
+not measure κ or the density factor but their product (section 2), and
+knowing that product to ±10 % removes about a third of the width — slightly
+more than knowing the density factor alone to the same tolerance, because
+the product is what the spin-exchange rate depends on. It does not remove
+the Rb–Xe half of the spread, which no build-up curve reaches.
+
+*What this does not show.* Holding a constant at its nominal value is the
+limit of a perfect measurement; a real one with its own interval sits
+between the "held" and "alone" columns. The ranges are the published ones
+and are treated as uniform and independent; a correlated pair (the two
+spin-exchange coefficients are measured against the same density) would
+move the shares. One operating point, 50 W; at 200 W the laser-starvation
+asymmetry would be smaller and the density factor's share different.
 
 ---
 
@@ -223,6 +285,41 @@ angle spends the magnetization early and the sum of squares rewards that,
 the image does not. Ignoring T1 in that schedule costs a 38% droop across
 the acquisition. That is small next to the losses upstream, which is the
 point of putting the two on one page.
+
+### All at once
+
+The table above scores one change at a time, and the ratios invite
+multiplication. They do not multiply (`src/budget_extremes.py`,
+`results/budget_extremes.json`). The five repairs that can be made together
+(the shorter breath-hold, the 2 min transport, coated glass, no cryogenic
+step, 50 ppm oxygen; the thaw row is moot once there is no thaw) deliver
+**64 %** against the baseline 23 %, ×2.74, where the one-at-a-time ratios
+multiply to ×3.52. The bag and the transport share one T1 (walls plus
+oxygen), so once the transport is two minutes the oxygen is worth less, and
+once the walls are glass the oxygen is most of what is left. In the other
+direction the same sharing makes things worse: 30 minutes of transport and a
+5 µT/cm gradient together deliver 3.6 %, ×0.15, where their ratios multiply
+to ×0.31 — the gradient shortens the T1 that the longer transport then
+spends three times over.
+
+With every upstream repair made, 96 % of the polarization reaches the mouth
+and the lung is the whole budget. That puts a floor under the chain that no
+hardware reaches:
+
+| breath-hold | lung alone (T1 19.8 s) | best upstream chain | baseline chain |
+|---|---|---|---|
+| 3 s | 86 % | 79 % | 43 % |
+| 5 s | 78 % | 71 % | 39 % |
+| 8 s | 67 % | 61 % | 33 % |
+| 10 s | 60 % | 55 % | 30 % |
+| 15 s | 47 % | 43 % | 23 % |
+| 20 s | 36 % | 33 % | 18 % |
+
+The baseline chain at a 3 s breath-hold delivers about what the best chain
+delivers at 15 s. Read the other way, the whole of the upstream engineering
+— cryogenics, bag, transport, carrier — multiplies the signal by 1.92,
+which is what shortening the breath-hold from 15 s to 3 s does (×1.83).
+That is the number a protocol designer should have before buying anything.
 
 ---
 
@@ -423,14 +520,17 @@ The core of this repository is public, in `src/`:
 | `exp4_sabre.py` | n-spin SABRE-SHEATH dynamics with the closed-form residence average |
 | `exp5_pinn.py` | the forward cell PINN and the inverse build-up PINN with the learned P_Rb(T) (PyTorch) |
 | `replicate_checks.py` | the five PINN replicates read one by one, per-minute cost of each delivery stage, flip-angle schedule comparison — from `results/` alone, no PyTorch |
+| `budget_extremes.py` | the delivery chain with every repair at once, the two worst rows together, the lung-only floor by breath-hold — arithmetic on `exp3_budget.default_chain` |
 | `tests/test_all.py` | the fourteen checks below |
 | `tests/test_readme_numbers.py` | pins the tables on this page to `results/*.json` |
+| `tests/test_second_pass.py` | pins "Which measurement would buy the most" and "All at once" to `results/uncertainty_fixing.json` and `results/budget_extremes.json` |
 
 `python3 tests/test_all.py` runs in under a minute; `exp5_pinn.py` needs
 PyTorch and a few minutes of CPU.
 
 **Not public:** the polarization–production frontier and Monte Carlo
-sweeps (exp1) and the figure scripts. These carry operating-point choices
+sweeps (exp1, including the constant-fixing re-run behind
+`results/uncertainty_fixing.json`) and the figure scripts. These carry operating-point choices
 that belong to ongoing work and are available under NDA. Every number they
 produce is in `results/`.
 

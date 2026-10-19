@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-10-19
+
+- Section 1's "largest single source of the spread is the rubidium density"
+  was a correlation ranking. The same 400 draws re-run with each constant
+  held at nominal: the Rb–Xe spin-destruction rate (fourth by ρ) removes
+  29 % of the 90 % width and the density factor 24 %, from opposite ends;
+  40 % of the variance each; four constants carry 92 % of the width, the
+  other five ≤ 1 %. Knowing κ·f to ±10 % (what a build-up series measures)
+  removes 32 %. 67 % of draws fall below nominal. Finding 3 amended, new
+  subsection "Which measurement would buy the most",
+  `results/uncertainty_fixing.json` (script private, with exp1).
+- Section 3's one-at-a-time ratios do not multiply: the five compatible
+  repairs together deliver 64 % (×2.74), not the ×3.52 product; the two
+  worst rows together 3.6 % (×0.15 vs ×0.31). Upstream at its best passes
+  96 %; the lung alone caps delivery at 67 % for 8 s, 47 % for 15 s. New
+  subsection "All at once" with the floor table, finding 6 amended,
+  `src/budget_extremes.py`, `results/budget_extremes.json`.
+- `tests/test_second_pass.py` (2 tests) pins both; three tracked `._*`
+  files removed and ignored.
+
 ## 2026-09-23
 
 - Section 5 read replicate by replicate: on the laser-starved series the
