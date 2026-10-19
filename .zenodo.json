@@ -1,0 +1,24 @@
+{
+  "upload_type": "software",
+  "title": "NavierPINN: Polarization Losses in Hyperpolarized Xenon Lung MRI",
+  "description": "Hyperpolarized xenon: where the polarization is lost",
+  "creators": [
+    {
+      "name": "Mikhaylov, Dmitry",
+      "orcid": "0009-0009-2108-6820",
+      "affiliation": "Abu Dhabi Maritime Academy, AD Ports Group"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "keywords": [
+    "hyperpolarization",
+    "identifiability",
+    "nmr",
+    "parahydrogen",
+    "physics modeling",
+    "sabre",
+    "seop",
+    "xenon 129"
+  ],
+  "access_right": "open"
+}
