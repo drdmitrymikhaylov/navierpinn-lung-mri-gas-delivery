@@ -8,6 +8,8 @@
 
 # Hyperpolarization budget: where nuclear polarization is made, and where it goes
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23529555.svg)](https://doi.org/10.5281/zenodo.23529555)
+
 Hyperpolarized gases raise an NMR signal by four to five orders of magnitude,
 and everything about them follows from one fact: the polarization is not
 renewable. It is manufactured, at a rate set by a competition between
